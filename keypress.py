@@ -1,16 +1,29 @@
 #!/usr/bin/env python3
 
 from tkinter import Tk, Label, Frame
+from threading import Timer
 root = Tk()
 
-def key_pressed(event):
-  print(event.keysym)
+obj = {
+  'count': 0
+}
 
-frame = Frame(root, width=300, height=300)
+def tick():
+    print("tick:", obj['count'])
+    Timer(1.0, tick).start()
+
+def key_pressed(event, obj = obj):
+  key = event.keysym
+  print(event.keysym)
+  if key == "Up":
+    obj['count'] += 1
+  if key == "Down":
+    obj['count'] -= 1
+
+tick()
+
 root.bind("<Key>", key_pressed)
-root.bind("<Left>", key_pressed)
-root.bind("<Right>", key_pressed)
-# frame.bind("<Space>", key_pressed)
+frame = Frame(root, width=300, height=300)
 frame.pack()
 frame.focus_set()
 root.mainloop()
