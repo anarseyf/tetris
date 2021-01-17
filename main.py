@@ -82,14 +82,13 @@ def update(state = state):
   status = state['status']
   for line in status:
     print(line)
-  status.clear()
+  # status.clear()
 
 def key_pressed(event, state = state):
   
   board, piece, row, col, status = (state['board'], state['piece'], state['row'], state['col'], state['status'])
   
   key = event.keysym
-  status.append("Pressed " + key)
   if key.lower() in ['c', 'x', 'q']:
     print("EXITING...")
     goodbye()
@@ -118,7 +117,7 @@ def key_pressed(event, state = state):
 
   update()
 
-ROWS = 3
+ROWS = 6
 COLS = 10
 board = Board(ROWS, COLS)
 state['board'] = board
@@ -126,7 +125,7 @@ state['board'] = board
 tick()
 
 root.bind("<Key>", key_pressed)
-frame = Frame(root, width=0, height=0)
+frame = Frame(root, width=200, height=50)
 frame.pack()
 frame.focus_set()
 root.mainloop()

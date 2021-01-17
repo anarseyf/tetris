@@ -51,7 +51,7 @@ class Board:
 
     offsetDots = list(map(offset, piece.dots))
 
-    canFit = reduce(lambda acc, dot: acc and self.isAvailable(*dot), offsetDots)
+    canFit = reduce(lambda acc, dot: acc and self.isAvailable(*dot), offsetDots, True)
     if (not canFit):
       return False
 
