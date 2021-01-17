@@ -23,7 +23,7 @@ def key_pressed(event, obj = obj):
 tick()
 
 root.bind("<Key>", key_pressed)
-frame = Frame(root, width=300, height=300)
+frame = Frame(root, width=0, height=0)
 frame.pack()
 frame.focus_set()
 root.mainloop()
