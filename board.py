@@ -32,13 +32,26 @@ class Board:
       m.append([Spot.FREE] * cols)
     self.m = m
 
-  def isInBounds(self, r: int, c: int) -> bool:
+  def _isInBounds(self, r: int, c: int) -> bool:
     return r >= 0 and c >= 0 and r < len(self.m) and c < len(self.m[0]) 
 
-  def isAvailable(self, r: int, c: int) -> bool:
-    return self.isInBounds(r, c) and self.m[r][c] != Spot.TAKEN
+  def _isAvailable(self, r: int, c: int) -> bool:
+    return self._isInBounds(r, c) and self.m[r][c] != Spot.TAKEN
 
-  def clearTemp(self):
+  def _clearRows(self):
+    while True:
+      deleted = False
+      for r in range(len(self.m)):
+        row = self.m[r]
+        isComplete = reduce(lambda acc, c: acc and c == Spot.TAKEN, row, True)
+        if isComplete:
+          del self.m[r]
+          self.m.insert(0, [Spot.FREE] * len(row))
+          deleted = True
+      if not deleted:
+        break
+
+  def _clearTemp(self):
     for row in self.m:
       for colNum in range(len(row)):
         if row[colNum] == Spot.TEMP:
@@ -51,15 +64,18 @@ class Board:
 
     offsetDots = list(map(offset, piece.dots))
 
-    canFit = reduce(lambda acc, dot: acc and self.isAvailable(*dot), offsetDots, True)
+    canFit = reduce(lambda acc, dot: acc and self._isAvailable(*dot), offsetDots, True)
     if (not canFit):
       return False
 
-    self.clearTemp()
+    self._clearTemp()
     
     spotType = Spot.TAKEN if freeze else Spot.TEMP
     for r, c in offsetDots:
       self.m[r][c] = spotType
+
+    if freeze:
+      self._clearRows()
 
     return True
     

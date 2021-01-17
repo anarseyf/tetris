@@ -119,7 +119,7 @@ def key_pressed(event, state = state):
   update()
 
 ROWS = 6
-COLS = 10
+COLS = 6
 board = Board(ROWS, COLS)
 state['board'] = board
 
