@@ -66,6 +66,7 @@ def gravity(state = state):
     if frozen:
       state['piece'] = None
       status.append("Frozen at ({}, {})".format(row, col))
+      generate()
     else:
       # raise BaseException("Could not freeze at ({}, {})".format(row, col))
       status.append("! Could not freeze at ({}, {})".format(row, col))
