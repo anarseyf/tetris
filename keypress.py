@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from tkinter import Tk, Label, Frame
+from tkinter import Tk, Tcl, Label, Frame
 from threading import Timer
 root = Tk()
 
@@ -14,7 +14,7 @@ def tick():
 
 def key_pressed(event, obj = obj):
   key = event.keysym
-  print(event.keysym)
+  print("Pressed: " + event.keysym)
   if key == "Up":
     obj['count'] += 1
   if key == "Down":

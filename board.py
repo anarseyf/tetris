@@ -1,4 +1,10 @@
 from functools import reduce
+from enum import Enum
+
+class Spot(Enum):
+  FREE = 0,
+  TEMP = 1,
+  TAKEN = 2
 
 class Piece:
 
@@ -23,19 +29,20 @@ class Board:
       raise BaseException("Bad args to Board init")
     m = []
     for _ in range(rows):
-      m.append([False] * cols)
+      m.append([Spot.FREE] * cols)
     self.m = m
-    
-  def print(self):
-    for row in self.m:
-      s = "".join(map(lambda c: ("[*]" if c else " - "), row))
-      print(s)
 
   def isInBounds(self, r: int, c: int) -> bool:
     return r >= 0 and c >= 0 and r < len(self.m) and c < len(self.m[0]) 
 
   def isAvailable(self, r: int, c: int) -> bool:
-    return self.isInBounds(r, c) and self.m[r][c] == 0
+    return self.isInBounds(r, c) and self.m[r][c] != Spot.TAKEN
+
+  def clearTemp(self):
+    for row in self.m:
+      for colNum in range(len(row)):
+        if row[colNum] == Spot.TEMP:
+          row[colNum] = Spot.FREE
 
   def place(self, piece: Piece, r: int, c: int) -> bool:
     def offset(dot):
@@ -47,8 +54,16 @@ class Board:
     canFit = reduce(lambda acc, dot: acc and self.isAvailable(*dot), offsetDots)
     if (not canFit):
       return False
+
+    self.clearTemp()
     
     for r, c in offsetDots:
-      self.m[r][c] = True
+      self.m[r][c] = Spot.TEMP
 
     return True
+    
+  def print(self):
+
+    for row in self.m:
+      s = "".join(map(lambda c: ("(*)" if c == Spot.TEMP else "[X]" if c == Spot.TEMP else " - "), row))
+      print(s)
