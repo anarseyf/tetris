@@ -23,12 +23,12 @@ class Board:
       raise BaseException("Bad args to Board init")
     m = []
     for _ in range(rows):
-      m.append([0] * cols)
+      m.append([False] * cols)
     self.m = m
     
   def print(self):
     for row in self.m:
-      s = "".join(map(lambda c: str(c) + " ", row))
+      s = "".join(map(lambda c: ("[*]" if c else " - "), row))
       print(s)
 
   def isInBounds(self, r: int, c: int) -> bool:
@@ -49,6 +49,6 @@ class Board:
       return False
     
     for r, c in offsetDots:
-      self.m[r][c] = 1
+      self.m[r][c] = True
 
     return True
