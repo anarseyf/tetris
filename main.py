@@ -2,7 +2,7 @@
 
 from board import Board, Piece
 from time import sleep
-from os import system
+import os, sys
 from tkinter import Tk, Tcl, Label, Frame
 from threading import Timer
 root = Tk()
@@ -18,12 +18,41 @@ state = {
 
 def tick(state = state):
   state['count'] += 1
+  generate()
   gravity()
   update()
   Timer(1.0, tick).start()
 
+def goodbye():
+  global root
+  root.quit()
+  # root.destroy()
+  os._exit(0)
+
+def gameOver():
+  state['status'].append("GAME OVER")
+  update()
+  goodbye()
+
+def generate(state = state):
+  if state['piece']:
+    return
+
+  piece = Piece(dots = [(0,0), (0,1), (0,2)])
+  state['piece'] = piece
+  row = 0
+  col = 3
+  placed = board.place(piece, row, col)
+  if not placed:
+    gameOver()
+  state['row'] = row
+  state['col'] = col
+
 def gravity(state = state):
   board, piece, row, col, status = (state['board'], state['piece'], state['row'], state['col'], state['status'])
+
+  if not piece:
+    return
 
   row += 1
   placed = board.place(piece, row, col)
@@ -35,6 +64,7 @@ def gravity(state = state):
     row -= 1
     frozen = board.place(piece, row, col, True)
     if frozen:
+      state['piece'] = None
       status.append("Frozen at ({}, {})".format(row, col))
     else:
       # raise BaseException("Could not freeze at ({}, {})".format(row, col))
@@ -42,7 +72,7 @@ def gravity(state = state):
 
 def clear():
   # pass
-  system('clear')
+  os.system('clear')
 
 def update(state = state):
   clear()
@@ -59,6 +89,16 @@ def key_pressed(event, state = state):
   board, piece, row, col, status = (state['board'], state['piece'], state['row'], state['col'], state['status'])
   
   key = event.keysym
+  status.append("Pressed " + key)
+  if key.lower() in ['c', 'x', 'q']:
+    print("EXITING...")
+    goodbye()
+
+  if not piece:
+    status.append("Piece is empty")
+    update()
+    return
+
   if key == "Up":
     row -= 1
   if key == "Down":
@@ -69,8 +109,6 @@ def key_pressed(event, state = state):
     col += 1
 
   coords = (row, col)
-  status.append("New coords: " + str(coords))
-
   placed = board.place(piece, *coords)
   status.append("Placed at ({},{})? {}".format(row, col, placed))
 
@@ -80,15 +118,10 @@ def key_pressed(event, state = state):
 
   update()
 
-ROWS = 10
+ROWS = 3
 COLS = 10
 board = Board(ROWS, COLS)
 state['board'] = board
-
-piece = Piece(dots = [(0,0), (0,1), (0,2)])
-state['piece'] = piece
-
-board.place(piece, 0, 3)
 
 tick()
 
