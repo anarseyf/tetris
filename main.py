@@ -12,21 +12,53 @@ state = {
   'row': 0,
   'col': 0,
   'board': None,
-  'piece': None
+  'piece': None,
+  'status': []
 }
 
-# def tick():
-#     print("tick:", obj['count'])
-#     Timer(1.0, tick).start()
+def tick(state = state):
+  state['count'] += 1
+  gravity()
+  update()
+  Timer(1.0, tick).start()
+
+def gravity(state = state):
+  board, piece, row, col, status = (state['board'], state['piece'], state['row'], state['col'], state['status'])
+
+  row += 1
+  placed = board.place(piece, row, col)
+  print("Gravity: placed at ({}, {}) ? {}".format(row, col, placed))
+  
+  if placed:
+    state['row'] = row
+  else:
+    row -= 1
+    frozen = board.place(piece, row, col, True)
+    if frozen:
+      status.append("Frozen at ({}, {})".format(row, col))
+    else:
+      # raise BaseException("Could not freeze at ({}, {})".format(row, col))
+      status.append("! Could not freeze at ({}, {})".format(row, col))
+
+def clear():
+  # pass
+  system('clear')
+
+def update(state = state):
+  clear()
+  print("tick:", state['count'])
+  board = state['board']
+  board.print()
+  status = state['status']
+  for line in status:
+    print(line)
+  status.clear()
 
 def key_pressed(event, state = state):
   
-  system('clear')
-
-  board, piece, row, col = (state['board'], state['piece'], state['row'], state['col'])
+  board, piece, row, col, status = (state['board'], state['piece'], state['row'], state['col'], state['status'])
   
   key = event.keysym
-  print("Pressed: " + event.keysym)
   if key == "Up":
     row -= 1
   if key == "Down":
@@ -37,37 +69,33 @@ def key_pressed(event, state = state):
     col += 1
 
   coords = (row, col)
-  print("New coords: " + str(coords))
+  status.append("New coords: " + str(coords))
 
   placed = board.place(piece, *coords)
-  board.print()
-  print("Placed at ({},{})? {}".format(row, col, placed))
+  status.append("Placed at ({},{})? {}".format(row, col, placed))
 
   if placed:
     state['row'] = row
     state['col'] = col
-# tick()
 
+  update()
 
 ROWS = 10
 COLS = 10
 board = Board(ROWS, COLS)
 state['board'] = board
-board.print()
 
 piece = Piece(dots = [(0,0), (0,1), (0,2)])
 state['piece'] = piece
 
-# row = 1
-# col = COLS - 1
-# placed = board.place(piece, row, col)
-# board.print()
-# print("Placed at ({},{})? {}".format(row, col, placed))
-# sleep(2)
+board.place(piece, 0, 3)
 
+tick()
 
 root.bind("<Key>", key_pressed)
 frame = Frame(root, width=0, height=0)
 frame.pack()
 frame.focus_set()
 root.mainloop()
+clear()
+

@@ -44,7 +44,7 @@ class Board:
         if row[colNum] == Spot.TEMP:
           row[colNum] = Spot.FREE
 
-  def place(self, piece: Piece, r: int, c: int) -> bool:
+  def place(self, piece: Piece, r: int, c: int, freeze=False) -> bool:
     def offset(dot):
       rDot, cDot = dot
       return (r + rDot, c + cDot)
@@ -57,13 +57,15 @@ class Board:
 
     self.clearTemp()
     
+    spotType = Spot.TAKEN if freeze else Spot.TEMP
     for r, c in offsetDots:
-      self.m[r][c] = Spot.TEMP
+      self.m[r][c] = spotType
 
     return True
     
   def print(self):
 
     for row in self.m:
-      s = "".join(map(lambda c: ("(*)" if c == Spot.TEMP else "[X]" if c == Spot.TEMP else " - "), row))
+      s = "".join(map(lambda c: ("(*)" if c == Spot.TEMP else "[X]" if c == Spot.TAKEN
+       else " - "), row))
       print(s)
