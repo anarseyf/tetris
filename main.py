@@ -8,6 +8,8 @@ import os, sys
 from tkinter import Tk, Tcl, Label, Frame
 from threading import Timer
 
+INTERVAL = 0.8
+START = (1, 3)
 NUM = 8
 OFF = (0,0,0)
 RED = (8,0,0)
@@ -45,7 +47,7 @@ def lights(serialized):
   pixels.show()
 
 def tick(state = state):
-  Timer(1.0, tick).start()
+  Timer(INTERVAL, tick).start()
   if state['paused']:
     return
 
@@ -69,15 +71,25 @@ def generate(state = state):
   if state['piece']:
     return
 
-  piece = Piece(dots = [(0,0), (0,1), (0,2), (1,0)])
+  piece = Piece()
   state['piece'] = piece
-  row = 0
-  col = 2
+  row, col = START
   placed = board.place(piece, row, col)
   if not placed:
     gameOver()
   state['row'] = row
   state['col'] = col
+
+def fall(state = state):
+  board, piece, row, col, = (state['board'], state['piece'], state['row'], state['col'])
+
+  row += 1
+  while True:
+    placed = board.place(piece, row, col)
+    if placed:
+      row += 1
+    else:
+      return row - 1
 
 def gravity(state = state):
   board, piece, row, col, status = (state['board'], state['piece'], state['row'], state['col'], state['status'])
@@ -87,7 +99,6 @@ def gravity(state = state):
 
   row += 1
   placed = board.place(piece, row, col)
-  print("Gravity: placed at ({}, {}) ? {}".format(row, col, placed))
   
   if placed:
     state['row'] = row
@@ -111,7 +122,7 @@ def update(state = state):
   print("tick:", state['count'])
   board = state['board']
   board.print()
-  serialized = board.serialize(2)
+  # serialized = board.serialize(2)
   status = state['status']
   for line in status:
     print(line)
@@ -130,8 +141,11 @@ def key_pressed(event, state = state):
   if key.lower() == 'p':
     state['paused'] = not state['paused']
     status.clear()
-    status.append("PAUSED" if state['paused'] else "RESUMED")
+    status.append("\nPAUSED" if state['paused'] else "\nRESUMED")
     update()
+    return
+
+  if state['paused']:
     return
 
   if not piece:
@@ -149,10 +163,12 @@ def key_pressed(event, state = state):
     col -= 1
   if key == "Right":
     col += 1
+  if key == "space":
+    row = fall()
 
   coords = (row, col)
   placed = board.place(newPiece, *coords)
-  status.append("Placed at ({},{})? {}".format(row, col, placed))
+  # status.append("Placed at ({},{})? {}".format(row, col, placed))
 
   if placed:
     state['row'] = row # TODO - row/col belong to Piece
@@ -161,8 +177,8 @@ def key_pressed(event, state = state):
 
   update()
 
-ROWS = 6
-COLS = 8
+ROWS = 20
+COLS = 10
 board = Board(ROWS, COLS)
 state['board'] = board
 

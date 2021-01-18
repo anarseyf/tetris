@@ -1,17 +1,34 @@
 from functools import reduce
 from enum import Enum
 from copy import deepcopy
+from random import random
+from math import floor
 
 class Spot(Enum):
   FREE = 0,
   TEMP = 1,
   TAKEN = 2
 
+prototypes = [
+  [(-1,0), (0,0), (0,1), (0,2)],   # |__
+  [(0,-2), (0,-1),(0,0), (-1,0)],  # __|
+  [(0,-1), (0,0), (0,1), (0,2)],   # ----
+  [(0,-1), (0,0), (1,0), (1,1)],   # ^|_
+  [(0,-1), (0,0), (-1,0),(-1,-1)], # _|^
+  [(0,-1), (0,0), (-1,0),(0,1)],   # _|_
+  [(0,0),  (0,1), (1,0), (1,1)],   # []
+]
+
+
 class Piece:
 
-  def __init__(self, dots = [(0, 0)]):
-    self.dots = dots
-    self.rotation = 0
+  def __init__(self, dots = None):
+    if dots:
+      self.dots = deepcopy(dots)
+    else:
+      global prototypes
+      i = floor(random() * len(prototypes))
+      self.dots = deepcopy(prototypes[i])
 
   def rotate(self):
     def flip(dot):
@@ -23,7 +40,6 @@ class Piece:
       return (-r, c)
 
     dots = list(map(mult, map(flip, self.dots)))
-
     self.dots = dots
 
   def print(self):
