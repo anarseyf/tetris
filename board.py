@@ -1,5 +1,6 @@
 from functools import reduce
 from enum import Enum
+from copy import deepcopy
 
 class Spot(Enum):
   FREE = 0,
@@ -12,11 +13,18 @@ class Piece:
     self.dots = dots
     self.rotation = 0
 
-  def rotate(self, clockwise = True):
-    self.rotation += 1
-    if self.rotation == 4:
-      self.rotation = 0
-    print("Rotated: " + str(self.rotation))
+  def rotate(self):
+    def flip(dot):
+      r, c = dot
+      return (c, r)
+
+    def mult(dot):
+      r, c = dot
+      return (-r, c)
+
+    dots = list(map(mult, map(flip, self.dots)))
+
+    self.dots = dots
 
   def print(self):
     print(self.dots)
@@ -81,7 +89,9 @@ class Board:
     
   def print(self):
 
+    def toStr(dot):
+      return "(*)" if dot == Spot.TEMP else "[X]" if dot == Spot.TAKEN else " - "
+
     for row in self.m:
-      s = "".join(map(lambda c: ("(*)" if c == Spot.TEMP else "[X]" if c == Spot.TAKEN
-       else " - "), row))
+      s = "".join(map(toStr, row))
       print(s)

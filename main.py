@@ -26,7 +26,6 @@ def tick(state = state):
 def goodbye():
   global root
   root.quit()
-  # root.destroy()
   os._exit(0)
 
 def gameOver():
@@ -38,9 +37,9 @@ def generate(state = state):
   if state['piece']:
     return
 
-  piece = Piece(dots = [(0,0), (0,1), (0,2)])
+  piece = Piece(dots = [(0,0), (0,1), (0,2), (1,0)])
   state['piece'] = piece
-  row = 0
+  row = 1
   col = 3
   placed = board.place(piece, row, col)
   if not placed:
@@ -83,7 +82,7 @@ def update(state = state):
   status = state['status']
   for line in status:
     print(line)
-  # status.clear()
+  status.clear()
 
 def key_pressed(event, state = state):
   
@@ -99,8 +98,10 @@ def key_pressed(event, state = state):
     update()
     return
 
+  newPiece = Piece(piece.dots)
+
   if key == "Up":
-    row -= 1
+    newPiece.rotate()
   if key == "Down":
     row += 1
   if key == "Left":
@@ -109,16 +110,17 @@ def key_pressed(event, state = state):
     col += 1
 
   coords = (row, col)
-  placed = board.place(piece, *coords)
+  placed = board.place(newPiece, *coords)
   status.append("Placed at ({},{})? {}".format(row, col, placed))
 
   if placed:
-    state['row'] = row
+    state['row'] = row # TODO - row/col belong to Piece
     state['col'] = col
+    state['piece'] = newPiece
 
   update()
 
-ROWS = 6
+ROWS = 8
 COLS = 6
 board = Board(ROWS, COLS)
 state['board'] = board
