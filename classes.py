@@ -126,4 +126,5 @@ class Board:
 
     print()
     print("".join(result))
+    return result
 

@@ -1,10 +1,22 @@
 #!/usr/bin/env python3
 
-from board import Board, Piece
+# import board
+# import neopixel
+from classes import Board, Piece
 from time import sleep
 import os, sys
 from tkinter import Tk, Tcl, Label, Frame
 from threading import Timer
+
+NUM = 8
+OFF = (0,0,0)
+RED = (8,0,0)
+WHITE = (5,5,5)
+NUM_PIXELS = 60
+# must be 10, 12, 18, or 21
+# PIN = board.D12
+# pixels = neopixel.NeoPixel(PIN, NUM_PIXELS, brightness=0.9)
+
 root = Tk()
 
 state = {
@@ -17,6 +29,21 @@ state = {
   'paused': False
 }
 
+def lightsOff():
+  pixels.fill(OFF)
+  pixels.show()
+
+def lights(serialized):
+  
+  pixels.fill(OFF)
+  for i in range(min(len(serialized), NUM_PIXELS)):
+    dot = serialized[i]
+    if dot == 'X':
+      pixels[i] = RED
+    elif dot == '*':
+      pixels[i] = WHITE
+  pixels.show()
+
 def tick(state = state):
   Timer(1.0, tick).start()
   if state['paused']:
@@ -24,10 +51,11 @@ def tick(state = state):
 
   state['count'] += 1
   generate()
-  # gravity()
+  gravity()
   update()
 
 def goodbye():
+  # lightsOff()
   global root
   root.quit()
   os._exit(0)
@@ -83,11 +111,12 @@ def update(state = state):
   print("tick:", state['count'])
   board = state['board']
   board.print()
-  board.serialize(1)
+  serialized = board.serialize(2)
   status = state['status']
   for line in status:
     print(line)
   status.clear()
+  # lights(serialized)
 
 def key_pressed(event, state = state):
   
@@ -132,8 +161,8 @@ def key_pressed(event, state = state):
 
   update()
 
-ROWS = 4
-COLS = 5
+ROWS = 6
+COLS = 8
 board = Board(ROWS, COLS)
 state['board'] = board
 
