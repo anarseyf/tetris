@@ -13,15 +13,19 @@ state = {
   'col': 0,
   'board': None,
   'piece': None,
-  'status': []
+  'status': [],
+  'paused': False
 }
 
 def tick(state = state):
+  Timer(1.0, tick).start()
+  if state['paused']:
+    return
+
   state['count'] += 1
   generate()
-  gravity()
+  # gravity()
   update()
-  Timer(1.0, tick).start()
 
 def goodbye():
   global root
@@ -39,8 +43,8 @@ def generate(state = state):
 
   piece = Piece(dots = [(0,0), (0,1), (0,2), (1,0)])
   state['piece'] = piece
-  row = 1
-  col = 3
+  row = 0
+  col = 2
   placed = board.place(piece, row, col)
   if not placed:
     gameOver()
@@ -79,6 +83,7 @@ def update(state = state):
   print("tick:", state['count'])
   board = state['board']
   board.print()
+  board.serialize(1)
   status = state['status']
   for line in status:
     print(line)
@@ -92,6 +97,13 @@ def key_pressed(event, state = state):
   if key.lower() in ['c', 'x', 'q']:
     print("EXITING...")
     goodbye()
+
+  if key.lower() == 'p':
+    state['paused'] = not state['paused']
+    status.clear()
+    status.append("PAUSED" if state['paused'] else "RESUMED")
+    update()
+    return
 
   if not piece:
     status.append("Piece is empty")
@@ -120,8 +132,8 @@ def key_pressed(event, state = state):
 
   update()
 
-ROWS = 8
-COLS = 6
+ROWS = 4
+COLS = 5
 board = Board(ROWS, COLS)
 state['board'] = board
 

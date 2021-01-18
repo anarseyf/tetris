@@ -95,3 +95,35 @@ class Board:
     for row in self.m:
       s = "".join(map(toStr, row))
       print(s)
+
+  def serialize(self, skip = 0):
+
+    ROWS = len(self.m)
+    COLS = len(self.m[0])
+    row = ROWS - 1
+    col = COLS - 1
+    result = []
+    diff = -1
+
+    while row >= 0:
+      dot = self.m[row][col]
+      s = "X" if dot == Spot.TAKEN else "*" if dot == Spot.TEMP else "."
+      result.append(s)
+
+      col += diff
+      if col < 0:
+        col = 0
+        row -= 1
+        diff *= -1
+        for _ in range(skip):
+          result.append(" ")
+      elif col >= COLS:
+        col = COLS - 1
+        row -= 1
+        diff *= -1
+        for _ in range(skip):
+          result.append(" ")
+
+    print()
+    print("".join(result))
+
